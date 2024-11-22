@@ -1,4 +1,4 @@
-name: Main
+name: CI
 
 on:
   pull_request:
@@ -39,3 +39,65 @@ jobs:
 
       - name: Run tests
         run: flutter test
+
+  build_ios:
+    name: Build Flutter (iOS)
+    needs: [flutter_test]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: stable
+
+      - name: Flutter doctor
+        run: flutter doctor
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Clean build files
+        run: flutter clean
+
+      - name: Build iOS app
+        run: flutter build ios
+
+  build_appbundle:
+    name: Build Flutter (Android)
+    needs: [flutter_test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: stable
+
+      - name: Flutter doctor
+        run: flutter doctor
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Clean build files
+        run: flutter clean
+
+      - name: Build Android AppBundle
+        run: flutter build appbundle
