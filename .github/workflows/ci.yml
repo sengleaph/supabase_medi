@@ -1,22 +1,41 @@
 name: CI
-  on:
-    pull_request:
-      branches:
-        - master
 
-  jobs:
-    flutter_test:
-      name: Run flutter test and analyze
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup_java@v1
-          with:
-            java-version: "12.x"
-        - uses: subosito/flutter-action@v1
-          with:
-            channel: "stable"
-        - run: flutter doctor
-        - run: flutter pub get
-        - run: flutter analyze
-        - run: flutter test
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  flutter_test:
+    name: Run Flutter tests and analyze
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu' # Recommended for Android builds
+          java-version: '11'
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: stable
+
+      - name: Flutter doctor
+        run: flutter doctor
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run analyzer
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
